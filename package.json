@@ -1,0 +1,26 @@
+{
+    "name": "pixi-game-starter",
+    "version": "0.0.3",
+    "description": "A starter template for Pixi.js games with Vite",
+    "type": "module",
+    "main": "bin/create-project.js",
+    "scripts": {
+        "build": "tsc && vite build",
+        "dev": "vite"
+    },
+    "author": "Your Name",
+    "license": "MIT",
+    "dependencies": {
+        "@esotericsoftware/spine-pixi-v8": "^4.2.71",
+        "gsap": "^3.12.5",
+        "pixi": "^0.3.1",
+        "pixi-filters": "^6.1.0",
+        "pixi.js": "^8.7.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.16.0",
+        "eslint": "^9.16.0",
+        "typescript": "~5.7.2",
+        "vite": "^6.0.2"
+    }
+}

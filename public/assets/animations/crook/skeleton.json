@@ -1,0 +1,78 @@
+{
+  "skeleton": {
+    "hash": "Oanvvj2tzck",
+    "spine": "4.2.39",
+    "x": -1109.53,
+    "y": -1000.5,
+    "width": 2233,
+    "height": 2193,
+    "images": "",
+    "audio": "./audio"
+  },
+  "bones": [
+    { "name": "root" },
+    {
+      "name": "cat",
+      "parent": "root",
+      "x": 139.96,
+      "y": 137.36,
+      "color": "5400ffff",
+      "icon": "suiteSpades"
+    }
+  ],
+  "slots": [{ "name": "cat", "bone": "cat", "attachment": "Crook and flail" }],
+  "skins": [
+    {
+      "name": "default",
+      "attachments": {
+        "cat": {
+          "Crook and flail": {
+            "x": -132.98,
+            "y": -41.36,
+            "width": 2233,
+            "height": 2193
+          }
+        }
+      }
+    }
+  ],
+  "animations": {
+    "Static": {
+      "bones": {
+        "cat": { "rotate": [{ "value": 1.45 }], "translate": [{ "y": 4.1 }] }
+      }
+    },
+    "Win": {
+      "bones": {
+        "cat": {
+          "rotate": [
+            { "value": 1.45, "curve": [0.113, 0.67, 0.223, 0.44] },
+            {
+              "time": 0.3333,
+              "value": 0.44,
+              "curve": [0.611, 0.44, 0.889, 3.18]
+            },
+            {
+              "time": 1.1667,
+              "value": 3.18,
+              "curve": [1.334, 3.18, 1.502, 2.65]
+            },
+            { "time": 1.6667, "value": 1.45 }
+          ],
+          "translate": [
+            {
+              "y": 4.1,
+              "curve": [0.278, 0, 0.556, 0, 0.278, 4.1, 0.556, 85.17]
+            },
+            {
+              "time": 0.8333,
+              "y": 85.17,
+              "curve": [1.111, 0, 1.389, 0, 1.111, 85.17, 1.389, 4.1]
+            },
+            { "time": 1.6667, "y": 4.1 }
+          ]
+        }
+      }
+    }
+  }
+}
