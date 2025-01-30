@@ -12,16 +12,7 @@ export class Game extends Application {
     this.setup()
       .then(async () => {
         console.log(Assets.cache);
-        await Assets.load({
-          alias: "asd",
-          src: "/assets/animations/crookAndFlail/skeleton.json",
-        });
-
-        await Assets.load({
-          alias: "asdsd",
-          src: "/assets/animations/crookAndFlail/skeleton.atlas",
-        });
-        // this.startGame();
+        this.startGame();
       })
       .catch((err) => {
         throw new Error(err);

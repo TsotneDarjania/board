@@ -97,10 +97,7 @@ export class Reel extends Container {
   }
 
   private createSpinManager() {
-    this.spinManager = new SpinManager(this, {
-      spinStyle: "classic",
-      symbolKeys: this.board.boardData.symbolKeys,
-    });
+    this.spinManager = new SpinManager(this, this.board.boardData.symbolKeys);
   }
 
   public startSpin() {

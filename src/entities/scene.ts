@@ -55,12 +55,12 @@ export abstract class Scene {
         autoGenerateMipmaps?: boolean;
       };
     }) => {
-      console.log(asset);
-      // await Assets.load({
-      //   alias: asset.alias,
-      //   src: asset.url,
-      //   data: asset.data || {},
-      // });
+      await Assets.load({
+        alias: asset.alias,
+        src: asset.url,
+        data: asset.data || {},
+        loadParser: "loadTxt",
+      });
 
       // Increment the count of loaded assets and update progress
       loadedCount++;

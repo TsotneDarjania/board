@@ -1,6 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { Reel } from "./reel";
-import { ReelStatusEvents } from "./enums";
+import { ReelStatusEvents, SymbolStatusEvents } from "./enums";
+import { SlotSymbol } from "./reel/slotSymbol";
 
 export type boardDataType = {
   reelsCount: number;
@@ -13,6 +14,8 @@ export type boardDataType = {
     symbolTextureOriginalHeight: number;
   };
   padding: number;
+  spinDuration: number;
+  spinStyle: "classic" | "fast";
 };
 
 export type boardWinningType = {
@@ -81,6 +84,14 @@ export class Board extends Container {
     this.addReels();
     this.addReelEventListeners();
     this.addMask();
+    this.adjustReelsYPositions();
+  }
+
+  private adjustReelsYPositions() {
+    const difference = this.displayHeight - this.height;
+    this.reels.forEach((reel) => {
+      reel.y += difference / 2;
+    });
   }
 
   private addReelEventListeners() {
@@ -108,6 +119,8 @@ export class Board extends Container {
     this.state = "FinishedSpin";
     if (this.winnings) {
       this.showWinningAnimations();
+    } else {
+      this.reset();
     }
   }
 
@@ -118,8 +131,32 @@ export class Board extends Container {
     this.state = "readyForSpin";
   }
 
-  private showWinningAnimations() {
-    console.log("Show Winning Animations");
+  private async showWinningAnimations() {
+    for (let i = 0; i < this.winnings!.lines.length; i++) {
+      await this.animateLine(this.winnings!.lines[i]);
+    }
+
+    this.reset();
+  }
+
+  private async animateLine(line: number[]) {
+    const animationPromises = line.map((symbolIndex, reelIndex) => {
+      console.log(symbolIndex);
+      return new Promise<void>((resolve) => {
+        const slotSymbol = this.reels[reelIndex].children[
+          symbolIndex
+        ] as unknown as SlotSymbol;
+        slotSymbol.playWinAnimation();
+        slotSymbol.eventEmitter.once(
+          SymbolStatusEvents.winninAnimationFinished,
+          () => {
+            resolve();
+          }
+        );
+      });
+    });
+
+    await Promise.all(animationPromises);
   }
 
   private addMask() {
@@ -128,8 +165,9 @@ export class Board extends Container {
         -this.displayWidth / 2,
         -this.displayHeight / 2,
         this.displayWidth,
-        this.displayHeight - 5
+        this.displayHeight
       )
+      .stroke({ width: 0 })
       .fill();
 
     this.mask = mask;

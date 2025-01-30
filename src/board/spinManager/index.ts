@@ -5,11 +5,6 @@ import gsap from "gsap";
 import { EventEmitter } from "pixi.js";
 import { ReelStatusEvents } from "../enums";
 
-export type spinConfig = {
-  spinStyle: "classic" | "modern";
-  symbolKeys: string[];
-};
-
 export class SpinManager {
   public eventEmitter!: EventEmitter;
   private isAlreadySentSpinEvenet = false;
@@ -19,25 +14,21 @@ export class SpinManager {
 
   downMotionDistance = 0;
 
-  constructor(public reel: Reel, public config: spinConfig) {
+  constructor(public reel: Reel, public symbolKeys: string[]) {
     this.eventEmitter = new EventEmitter();
 
     this.downMotionDistance =
       reel.paddingBetweenSymbols -
       reel.board.slotSymbolHeight +
       this.reel.board.displayHeight;
-
-    console.log(this.downMotionDistance);
   }
 
   private addNextSymbols() {
     for (let i = 0; i < this.reel.board.boardData.symbolsPerReel; i++) {
       const symbol = new SlotSymbol(
         this.isLastSpin
-          ? this.config.symbolKeys[this.resultCombination[i]]
-          : this.config.symbolKeys[
-              getRandomIntInRange(0, this.config.symbolKeys.length - 1)
-            ],
+          ? this.symbolKeys[this.resultCombination[i]]
+          : this.symbolKeys[getRandomIntInRange(0, this.symbolKeys.length - 1)],
         this.reel.topSymbolPositionY -
           this.reel.paddingBetweenSymbols -
           i * this.reel.paddingBetweenSymbols -
@@ -51,42 +42,31 @@ export class SpinManager {
 
   public startSpin() {
     this.addNextSymbols();
-    this.goUp();
-  }
-
-  private updateSymbolOpacity() {
-    const topBorder = this.reel.board.y - this.reel.board.displayHeight / 2;
-    const bottomBorder = this.reel.board.y + this.reel.board.displayHeight / 2;
-
-    this.reel.children.forEach((symbol) => {
-      const symbolY = symbol.toGlobal(this.reel.board).y;
-
-      // Calculate opacity based on proximity to the borders
-      if (symbolY <= topBorder || symbolY >= bottomBorder) {
-        symbol.alpha = 0; // Fully transparent
-      } else {
-        const distanceToBorder = Math.min(
-          Math.abs(symbolY - topBorder),
-          Math.abs(symbolY - bottomBorder)
+    this.reel.board.boardData.spinStyle === "classic"
+      ? this.goUp()
+      : this.goDown(
+          this.reel.y + this.downMotionDistance,
+          "back.in",
+          this.reel.board.boardData.spinDuration * 1.5
         );
-        const maxDistance = this.reel.board.displayHeight / 4; // Adjust this value as needed
-        symbol.alpha = Math.max(0, Math.min(1, distanceToBorder / maxDistance)); // Normalize to [0, 1]
-      }
-    });
   }
 
   private goUp() {
     gsap.to(this.reel, {
-      duration: 0.9,
+      duration:
+        this.reel.board.boardData.spinDuration +
+        this.reel.board.boardData.spinDuration * 1.5,
       y: this.reel.y - calculatePercentage(25, this.reel.board.displayHeight),
-      ease: "back.in",
+      // ease: "back"
+      ease: this.reel.board.boardData.spinStyle === "classic" ? "back.in" : "",
       onComplete: () => {
         this.goDown(
           this.reel.y +
             calculatePercentage(25, this.reel.board.displayHeight) +
             this.downMotionDistance,
           "sine.in",
-          0.3
+          this.reel.board.boardData.spinDuration +
+            this.reel.board.boardData.spinDuration * 0.8
         );
       },
     });
@@ -97,9 +77,6 @@ export class SpinManager {
       duration: duration,
       y: targetY,
       ease: style,
-      onUpdate: () => {
-        this.updateSymbolOpacity(); // Update opacity during the animation
-      },
       onComplete: () => {
         this.reel.children
           .slice(0, this.reel.board.boardData.symbolsPerReel)
@@ -118,14 +95,26 @@ export class SpinManager {
         }
 
         this.addNextSymbols();
-        this.goDown(this.reel.y + this.downMotionDistance, "none", 0.2);
+        this.goDown(
+          this.reel.y + this.downMotionDistance,
+          "none",
+          this.reel.board.boardData.spinDuration
+        );
       },
     });
   }
 
   private lastGoDown() {
     this.addNextSymbols();
-    this.lastSpin(this.reel.y + this.downMotionDistance, "back.out", 0.7);
+    this.lastSpin(
+      this.reel.y + this.downMotionDistance,
+      this.reel.board.boardData.spinStyle ? "back.out" : "circ.out",
+      this.reel.board.boardData.spinDuration +
+        this.reel.board.boardData.spinStyle ===
+        "classic"
+        ? this.reel.board.boardData.spinDuration * 3
+        : this.reel.board.boardData.spinDuration * 3.5
+    );
   }
 
   private lastSpin(targetY: number, style: string, duration: number) {
@@ -156,3 +145,26 @@ export class SpinManager {
     this.isAlreadySentSpinEvenet = false;
   }
 }
+
+// May We Will use Later
+
+// private updateSymbolOpacity() {
+//   const topBorder = this.reel.board.y - this.reel.board.displayHeight / 2;
+//   const bottomBorder = this.reel.board.y + this.reel.board.displayHeight / 2;
+
+//   this.reel.children.forEach((symbol) => {
+//     const symbolY = symbol.toGlobal(this.reel.board).y;
+
+//     // Calculate opacity based on proximity to the borders
+//     if (symbolY <= topBorder || symbolY >= bottomBorder) {
+//       symbol.alpha = 0; // Fully transparent
+//     } else {
+//       const distanceToBorder = Math.min(
+//         Math.abs(symbolY - topBorder),
+//         Math.abs(symbolY - bottomBorder)
+//       );
+//       const maxDistance = this.reel.board.displayHeight / 4; // Adjust this value as needed
+//       symbol.alpha = Math.max(0, Math.min(1, distanceToBorder / maxDistance)); // Normalize to [0, 1]
+//     }
+//   });
+// }
